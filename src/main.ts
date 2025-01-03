@@ -11,6 +11,8 @@ import router from "./router";
 import pinia from "./stores";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
+// 导入暗黑模式样式
+import "element-plus/theme-chalk/dark/css-vars.css";
 import i18n from "@/locales";
 
 // 根据环境变量决定是否启用mock

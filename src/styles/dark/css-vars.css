@@ -1,0 +1,13 @@
+html.dark {
+  /* 自定义深色背景颜色 */
+  --el-bg-color: #1a1a1a;
+  --el-bg-color-overlay: #1d1e1f;
+
+  /* 自定义文字颜色 */
+  --el-text-color-primary: #ffffff;
+  --el-text-color-regular: #e5eaf3;
+
+  /* 自定义边框颜色 */
+  --el-border-color: #434343;
+  --el-border-color-light: #434343;
+}

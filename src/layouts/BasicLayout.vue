@@ -23,6 +23,14 @@
     <el-container>
       <el-header>
         <div class="header-right">
+          <!-- 主题切换 -->
+          <el-button
+            :icon="themeStore.isDark ? Sunny : Moon"
+            circle
+            @click="themeStore.toggleTheme"
+            style="margin-right: 20px"
+          />
+          
           <el-dropdown @command="handleCommand" style="margin-right: 20px">
             <span class="el-dropdown-link">
               <el-icon><User /></el-icon>
@@ -60,16 +68,18 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { House, User, Location } from "@element-plus/icons-vue";
+import { House, User, Location, Moon, Sunny } from "@element-plus/icons-vue";
 import { useRouter, useRoute } from "vue-router";
 import { useUserStore } from "@/stores/modules/userStore";
 import { useI18nStore } from "@/stores/modules/i18nStore";
+import { useThemeStore } from "@/stores/modules/themeStore";
 import { useI18n } from "vue-i18n";
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const i18nStore = useI18nStore();
+const themeStore = useThemeStore();
 const { t } = useI18n();
 
 const currentLang = computed(() => (i18nStore.locale === "zh-CN" ? "中文" : "English"));
@@ -87,36 +97,4 @@ const handleLanguage = (command: string) => {
 </script>
 
 <style scoped>
-.layout-container {
-  height: 100vh;
-}
-
-.el-menu-vertical {
-  height: 100%;
-  border-right: none;
-}
-
-.el-header {
-  background-color: #fff;
-  border-bottom: 1px solid #dcdfe6;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 20px;
-}
-
-.header-right {
-  cursor: pointer;
-}
-
-.el-dropdown-link {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.el-aside {
-  background-color: #304156;
-  color: #fff;
-}
 </style> 

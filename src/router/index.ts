@@ -5,17 +5,53 @@
  * @Description: vue-router
  */
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "@/views/HomeView.vue";
-import LoginView from "@/views/LoginView.vue";
-
-const routes = [
-  { path: "/", component: HomeView },
-  { path: "/login", component: LoginView },
-];
+import { useUserStore } from "@/stores/modules/userStore";
+import BasicLayout from "@/layouts/BasicLayout.vue";
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes,
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: "/login",
+      name: "login",
+      component: () => import("@/views/LoginView.vue"),
+    },
+    {
+      path: "/",
+      component: BasicLayout,
+      children: [
+        {
+          path: "",
+          redirect: "/home",
+        },
+        {
+          path: "home",
+          name: "home",
+          component: () => import("@/views/HomeView.vue"),
+        },
+      ],
+    },
+  ],
+});
+
+// 路由守卫
+router.beforeEach((to, _, next) => {
+  const userStore = useUserStore();
+  const token = userStore.token;
+
+  if (to.path === "/login") {
+    if (token) {
+      next("/home");
+    } else {
+      next();
+    }
+  } else {
+    if (token) {
+      next();
+    } else {
+      next("/login");
+    }
+  }
 });
 
 export default router;

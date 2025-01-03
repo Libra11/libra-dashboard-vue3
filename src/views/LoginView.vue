@@ -5,21 +5,61 @@
  * @Description: 登录页面
 -->
 <template>
-  <div>
-    <h1>登录页面</h1>
-    <el-button type="primary" @click="userStore.login">登录</el-button>
+  <div class="login-container">
+    <el-card class="login-card">
+      <template #header>
+        <h2>系统登录</h2>
+      </template>
+      
+      <el-form>
+        <el-form-item>
+          <el-button type="primary" @click="handleLogin" :loading="loading" block>
+            登录
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from "@/stores/modules/userStore";
-import { onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/modules/userStore'
+import { ElMessage } from 'element-plus'
 
-const userStore = useUserStore();
-const router = useRouter();
-onMounted(() => {
-  userStore.login();
-  router.push("/home");
-});
+const router = useRouter()
+const userStore = useUserStore()
+const loading = ref(false)
+
+const handleLogin = async () => {
+  loading.value = true
+  try {
+    const success = await userStore.login()
+    if (success) {
+      ElMessage.success('登录成功')
+      router.push('/home')
+    }
+  } finally {
+    loading.value = false
+  }
+}
 </script>
+
+<style scoped>
+.login-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f5f7fa;
+}
+
+.login-card {
+  width: 400px;
+}
+
+:deep(.el-card__header) {
+  text-align: center;
+}
+</style>

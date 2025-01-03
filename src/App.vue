@@ -21,7 +21,9 @@ watch(
   () => i18nStore.locale,
   (val) => {
     locale.value = val === "zh-CN" ? zhCn : en;
-  }
+    i18nStore.setLocale(val as "zh-CN" | "en-US");
+  },
+  { immediate: true }
 );
 
 // 初始化主题

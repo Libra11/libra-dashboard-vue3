@@ -1,40 +1,41 @@
-import { http } from '@/utils/http'
-import type { ResponseData } from '@/types/http'
+import { http } from "@/utils/http";
+import type { ResponseData } from "@/types/http";
 
 // 定义接口返回数据类型
 interface LoginParams {
-  username: string
-  password: string
+  username: string;
+  password: string;
 }
 
 interface UserInfo {
-  id: number
-  name: string
-  email: string
+  id: number;
+  name: string;
+  email: string;
+  avatar: string;
 }
 
 // 用户相关接口
 export const userApi = {
   // 登录
   login: (data: LoginParams) => {
-    return http.post<ResponseData<string>>('/auth/login', data, {
+    return http.post<ResponseData<string>>("/auth/login", data, {
       requestOptions: {
-        successMessage: '登录成功'
-      }
-    })
+        successMessage: "登录成功",
+      },
+    });
   },
 
   // 获取用户信息
   getUserInfo: () => {
-    return http.get<ResponseData<UserInfo>>('/user/info')
+    return http.get<ResponseData<UserInfo>>("/user/info");
   },
 
   // 退出登录
   logout: () => {
-    return http.post('/auth/logout', null, {
+    return http.post<ResponseData<null>>("/auth/logout", null, {
       requestOptions: {
-        successMessage: '退出成功'
-      }
-    })
-  }
-} 
+        successMessage: "退出成功",
+      },
+    });
+  },
+};

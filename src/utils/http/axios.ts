@@ -4,7 +4,7 @@
  * @LastEditors: Libra
  * @Description: axios请求封装
  */
-import type { AxiosError, AxiosInstance } from "axios";
+import type { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import axios from "axios";
 import type { CreateRequestConfig, ResponseData } from "@/types/http";
 import { useUserStore } from "@/stores/modules/userStore";
@@ -34,7 +34,6 @@ export class RequestHttp {
     requestOptions: {
       loading: true,
       showError: true,
-      isReturnResponseData: true,
     },
   };
 
@@ -77,32 +76,26 @@ export class RequestHttp {
 
     // 响应拦截器
     this.instance.interceptors.response.use(
-      (response) => {
+      (response: AxiosResponse): Promise<any> => {
         const { requestOptions } = response.config as CreateRequestConfig;
-        const {
-          showError = true,
-          successMessage,
-          isReturnResponseData = true,
-        } = requestOptions || {};
+        const { showError = true, successMessage } = requestOptions || {};
 
         // 关闭loading
         loadingInstance?.close();
 
         const res = response.data as ResponseData;
         if (res.code !== 0) {
-          // 显示错误信息
           if (showError) {
             ElMessage.error(res.message || "请求失败");
           }
           return Promise.reject(res);
         }
 
-        // 显示成功信息
         if (successMessage) {
           ElMessage.success(successMessage);
         }
 
-        return isReturnResponseData ? res.data : res;
+        return Promise.resolve(res);
       },
       (error: AxiosError<ResponseData>) => {
         loadingInstance?.close();

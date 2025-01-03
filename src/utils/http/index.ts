@@ -7,9 +7,8 @@
 import { RequestHttp } from "./axios";
 
 // 创建请求实例
-export const http = new RequestHttp({
+const http = new RequestHttp({
   // 可以在这里覆盖默认配置
 });
 
-// 导出请求方法
-export const { get, post, put, patch, delete: del, request } = http;
+export { http };

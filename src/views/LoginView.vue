@@ -26,7 +26,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/modules/userStore'
-import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -37,7 +36,6 @@ const handleLogin = async () => {
   try {
     const success = await userStore.login()
     if (success) {
-      ElMessage.success('登录成功')
       router.push('/home')
     }
   } finally {

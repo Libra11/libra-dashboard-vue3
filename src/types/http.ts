@@ -16,8 +16,6 @@ export interface RequestOptions {
   errorMessage?: string;
   // 成功提示信息
   successMessage?: string;
-  // 是否直接返回 response.data
-  isReturnResponseData?: boolean;
 }
 
 // 定义请求配置

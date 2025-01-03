@@ -23,13 +23,16 @@
     <el-container>
       <el-header>
         <div class="header-right">
-          <!-- 主题切换 -->
+          <!-- 模式切换 -->
           <el-button
-            :icon="themeStore.isDark ? Sunny : Moon"
+            :icon="modeStore.isDark ? Sunny : Moon"
             circle
-            @click="themeStore.toggleTheme"
+            @click="modeStore.toggleMode"
             style="margin-right: 20px"
           />
+
+          <!-- 主题切换 -->
+          <ChangeTheme />
           
           <el-dropdown @command="handleCommand" style="margin-right: 20px">
             <span class="el-dropdown-link">
@@ -72,14 +75,15 @@ import { House, User, Location, Moon, Sunny } from "@element-plus/icons-vue";
 import { useRouter, useRoute } from "vue-router";
 import { useUserStore } from "@/stores/modules/userStore";
 import { useI18nStore } from "@/stores/modules/i18nStore";
-import { useThemeStore } from "@/stores/modules/themeStore";
+import { useModeStore } from "@/stores/modules/modeStore";
 import { useI18n } from "vue-i18n";
+import ChangeTheme from "@/components/ChangeTheme.vue";
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const i18nStore = useI18nStore();
-const themeStore = useThemeStore();
+const modeStore = useModeStore();
 const { t } = useI18n();
 
 const currentLang = computed(() => (i18nStore.locale === "zh-CN" ? "中文" : "English"));

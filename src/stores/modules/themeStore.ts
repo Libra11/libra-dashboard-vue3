@@ -1,41 +1,44 @@
 /*
  * @Author: Libra
- * @Date: 2025-01-04 01:30:12
+ * @Date: 2025-01-04 01:28:23
  * @LastEditors: Libra
- * @Description: 主题store
+ * @Description:
  */
+
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { Ref } from "vue";
 
+export type ThemeType = "default" | "green" | "purple";
+
 export const useThemeStore = defineStore(
   "theme",
   () => {
-    // 状态
-    const isDark: Ref<boolean> = ref(false);
+    // 主题状态
+    const theme: Ref<ThemeType> = ref("default");
 
     // 切换主题
-    const toggleTheme = () => {
-      isDark.value = !isDark.value;
-      // 更新 html 的 class
+    const changeTheme = (newTheme: ThemeType) => {
+      theme.value = newTheme;
+      // 更新 html 的 data-theme
       const htmlEl = document.documentElement;
-      if (isDark.value) {
-        htmlEl.classList.add("dark");
+      if (newTheme === "default") {
+        htmlEl.removeAttribute("data-theme");
       } else {
-        htmlEl.classList.remove("dark");
+        htmlEl.setAttribute("data-theme", newTheme);
       }
     };
 
     // 初始化主题
     const initTheme = () => {
-      if (isDark.value) {
-        document.documentElement.classList.add("dark");
+      if (theme.value !== "default") {
+        document.documentElement.setAttribute("data-theme", theme.value);
       }
     };
 
     return {
-      isDark,
-      toggleTheme,
+      theme,
+      changeTheme,
       initTheme,
     };
   },

@@ -14,6 +14,8 @@ import "element-plus/dist/index.css";
 // 导入暗黑模式样式
 import "element-plus/theme-chalk/dark/css-vars.css";
 import i18n from "@/locales";
+// 导入主题样式
+import "@/styles/themes.css";
 
 // 根据环境变量决定是否启用mock
 if (import.meta.env.VITE_USE_MOCK === "true") {

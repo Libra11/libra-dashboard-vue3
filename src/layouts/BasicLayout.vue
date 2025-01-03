@@ -1,3 +1,9 @@
+<!--
+ * @Author: Libra
+ * @Date: 2025-01-04 00:01:40
+ * @LastEditors: Libra
+ * @Description: 
+-->
 <template>
   <el-container class="layout-container">
     <el-aside width="200px">
@@ -17,14 +23,28 @@
     <el-container>
       <el-header>
         <div class="header-right">
-          <el-dropdown @command="handleCommand">
+          <el-dropdown @command="handleCommand" style="margin-right: 20px">
             <span class="el-dropdown-link">
               <el-icon><User /></el-icon>
-              用户中心
+              {{ t("message.hello") }}
             </span>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+          
+          <!-- 语言切换 -->
+          <el-dropdown @command="handleLanguage">
+            <span class="el-dropdown-link">
+              <el-icon><Location /></el-icon>
+              {{ currentLang }}
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="zh-CN">中文</el-dropdown-item>
+                <el-dropdown-item command="en-US">English</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -39,20 +59,31 @@
 </template>
 
 <script setup lang="ts">
-import { House, User } from '@element-plus/icons-vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useUserStore } from '@/stores/modules/userStore'
+import { computed } from "vue";
+import { House, User, Location } from "@element-plus/icons-vue";
+import { useRouter, useRoute } from "vue-router";
+import { useUserStore } from "@/stores/modules/userStore";
+import { useI18nStore } from "@/stores/modules/i18nStore";
+import { useI18n } from "vue-i18n";
 
-const router = useRouter()
-const route = useRoute()
-const userStore = useUserStore()
+const router = useRouter();
+const route = useRoute();
+const userStore = useUserStore();
+const i18nStore = useI18nStore();
+const { t } = useI18n();
+
+const currentLang = computed(() => (i18nStore.locale === "zh-CN" ? "中文" : "English"));
 
 const handleCommand = async (command: string) => {
-  if (command === 'logout') {
-    userStore.logout()
-    router.push('/login')
+  if (command === "logout") {
+    userStore.logout();
+    router.push("/login");
   }
-}
+};
+
+const handleLanguage = (command: string) => {
+  i18nStore.setLocale(command);
+};
 </script>
 
 <style scoped>

@@ -11,6 +11,7 @@ import router from "./router";
 import pinia from "./stores";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
+import i18n from "@/locales";
 
 // 根据环境变量决定是否启用mock
 if (import.meta.env.VITE_USE_MOCK === "true") {
@@ -21,5 +22,6 @@ const app = createApp(App);
 app.use(router);
 app.use(pinia);
 app.use(ElementPlus);
+app.use(i18n);
 
 app.mount("#app");

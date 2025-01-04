@@ -27,7 +27,7 @@
           <el-button
             :icon="modeStore.isDark ? Sunny : Moon"
             circle
-            @click="modeStore.toggleMode"
+            @click="(event) => modeStore.toggleMode(event)"
             style="margin-right: 20px"
           />
 

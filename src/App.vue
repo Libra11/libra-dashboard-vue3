@@ -1,3 +1,9 @@
+<!--
+ * @Author: Libra
+ * @Date: 2025-01-03 23:28:18
+ * @LastEditors: Libra
+ * @Description: 
+-->
 <template>
   <el-config-provider :locale="i18nStore.elLocale">
     <router-view></router-view>

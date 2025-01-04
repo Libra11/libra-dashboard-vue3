@@ -5,7 +5,7 @@
  * @Description: 主页
 -->
 <template>
-  <div class="home-container">
+  <div>
     <el-row :gutter="20">
       <el-col :span="8">
         <el-card>
@@ -25,7 +25,4 @@
 </script>
 
 <style scoped>
-.home-container {
-  padding: 20px;
-}
 </style>

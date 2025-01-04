@@ -2,67 +2,20 @@
  * @Author: Libra
  * @Date: 2025-01-04 00:01:40
  * @LastEditors: Libra
- * @Description: 
+ * @Description: 基础布局
 -->
 <template>
-  <el-container class="layout-container">
-    <el-aside width="200px">
-      <el-menu
-        :default-active="route.path"
-        class="el-menu-vertical"
-        :router="true"
-      >
-        <el-menu-item index="/home">
-          <el-icon><House /></el-icon>
-          <span>首页</span>
-        </el-menu-item>
-        <!-- 可以在这里添加更多菜单项 -->
-      </el-menu>
+  <el-container class="h-screen">
+    <el-aside :width="'auto'">
+      <SideMenu />
     </el-aside>
     
     <el-container>
-      <el-header>
-        <div class="header-right">
-          <!-- 模式切换 -->
-          <el-button
-            :icon="modeStore.isDark ? Sunny : Moon"
-            circle
-            @click="(event) => modeStore.toggleMode(event)"
-            style="margin-right: 20px"
-          />
-
-          <!-- 主题切换 -->
-          <ChangeTheme />
-          
-          <el-dropdown @command="handleCommand" style="margin-right: 20px">
-            <span class="el-dropdown-link">
-              <el-icon><User /></el-icon>
-              {{ t("message.hello") }}
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="logout">退出登录</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-          
-          <!-- 语言切换 -->
-          <el-dropdown @command="handleLanguage">
-            <span class="el-dropdown-link">
-              <el-icon><Location /></el-icon>
-              {{ currentLang }}
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="zh-CN">中文</el-dropdown-item>
-                <el-dropdown-item command="en-US">English</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </div>
+      <el-header class="p-0">
+        <HeaderBar />
       </el-header>
       
-      <el-main>
+      <el-main class=" p-5">
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -70,35 +23,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { House, User, Location, Moon, Sunny } from "@element-plus/icons-vue";
-import { useRouter, useRoute } from "vue-router";
-import { useUserStore } from "@/stores/modules/userStore";
+import { onMounted } from "vue";
 import { useI18nStore } from "@/stores/modules/i18nStore";
 import { useModeStore } from "@/stores/modules/modeStore";
-import { useI18n } from "vue-i18n";
-import ChangeTheme from "@/components/ChangeTheme.vue";
+import { useThemeStore } from "@/stores/modules/themeStore";
+import SideMenu from "@/components/SideMenu.vue";
+import HeaderBar from "@/components/HeaderBar.vue";
 
-const router = useRouter();
-const route = useRoute();
-const userStore = useUserStore();
 const i18nStore = useI18nStore();
 const modeStore = useModeStore();
-const { t } = useI18n();
+const themeStore = useThemeStore();
 
-const currentLang = computed(() => (i18nStore.locale === "zh-CN" ? "中文" : "English"));
-
-const handleCommand = async (command: string) => {
-  if (command === "logout") {
-    userStore.logout();
-    router.push("/login");
-  }
-};
-
-const handleLanguage = (command: string) => {
-  i18nStore.setLocale(command);
-};
-</script>
-
-<style scoped>
-</style> 
+// 初始化主题
+onMounted(() => {
+  i18nStore.initLocale();
+  modeStore.initMode();
+  themeStore.initTheme();
+});
+</script> 

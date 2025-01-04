@@ -1,82 +1,108 @@
 <!--
  * @Author: Libra
- * @Date: 2025-01-04 23:17:26
- * @LastEditors: Libra
- * @Description: 
--->
-<!--
- * @Author: Libra
  * @Description: 侧边菜单组件
 -->
 <template>
   <div
-    class="h-full transition-all duration-300 flex flex-col"
+    class="h-full border-r border-[var(--el-border-color)] bg-[var(--el-bg-color)] transition-[width] duration-300"
     :class="[isCollapse ? 'w-16' : 'w-[220px]']"
   >
-
-  <div class="flex justify-center items-center py-2">
-    <img src="@/assets/vue.svg" alt="">
-    <span class="ml-2">Libra</span>
-  </div>
-
-  <div class="text-[var(--el-text-color-secondary)] px-4 py-4">
-    Dashboard
-  </div>
+    <!-- Logo -->
+    <div class="h-16 px-4 flex items-center">
+      <img src="@/assets/vue.svg" alt="logo" class="w-8 h-8" />
+      <span
+        class="ml-3 text-lg font-semibold text-[var(--el-text-color-primary)] transition-transform duration-300 origin-left"
+        :class="[isCollapse ? 'scale-x-0' : 'scale-x-100']"
+      >
+        Libra
+      </span>
+    </div>
 
     <!-- 菜单主体 -->
-    <el-menu
-      :default-active="route.path"
-      :collapse="isCollapse"
-      :router="true"
-      class="flex-1 !border-none"
-      @open="handleOpen"
-      @close="handleClose"
-    >
-      <el-menu-item index="/home" class="menu-item">
-        <el-icon><House /></el-icon>
-        <template #title>首页</template>
-      </el-menu-item>
+    <div class="px-2 py-4 space-y-1 overflow-y-auto">
+      <!-- 首页 -->
+      <router-link
+        to="/home"
+        class="flex items-center px-2 py-3 rounded-lg text-[var(--el-text-color-primary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
+        :class="[
+          isCollapse ? 'justify-center' : '',
+          route.path === '/home' ? 'bg-[var(--el-color-primary-light-9)]' : ''
+        ]"
+      >
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--el-bg-color-overlay)]">
+          <House class="w-5 h-5" :class="route.path === '/home' ? 'text-[var(--el-color-primary)]' : 'text-[var(--el-text-color-secondary)]'" />
+        </div>
+        <span
+          class="ml-3 text-sm font-medium transition-transform duration-300 origin-left"
+          :class="[isCollapse ? 'scale-x-0' : 'scale-x-100']"
+        >
+          首页
+        </span>
+      </router-link>
 
-      <el-sub-menu index="1">
-        <template #title>
-          <el-icon><Document /></el-icon>
-          <span>系统管理</span>
-        </template>
-          <el-menu-item index="/system/user" class="menu-item">
-            <el-icon><User /></el-icon>
-            <span>用户管理</span>
-          </el-menu-item>
-          <el-menu-item index="/system/role" class="menu-item">
-            <el-icon><Setting /></el-icon>
-            <span>角色管理</span>
-          </el-menu-item>
-      </el-sub-menu>
+      <!-- 系统管理 -->
+      <div class="space-y-1">
+        <button
+          @click="toggleSubmenu('system')"
+          class="w-full flex items-center px-2 py-3 rounded-lg text-[var(--el-text-color-primary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
+          :class="[isCollapse ? 'justify-center' : '']"
+        >
+          <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--el-bg-color-overlay)]">
+            <Document class="w-5 h-5 text-[var(--el-text-color-secondary)]" />
+          </div>
+          <span
+            class="ml-3 text-sm font-medium transition-transform duration-300 origin-left"
+            :class="[isCollapse ? 'scale-x-0' : 'scale-x-100']"
+          >
+            系统管理
+          </span>
+          <el-icon
+            class="ml-auto transition-transform duration-300"
+            :class="[
+              isCollapse ? 'opacity-0 scale-0' : '',
+              openSubmenus.includes('system') ? 'rotate-180' : ''
+            ]"
+          >
+            <ArrowDown class="text-[var(--el-text-color-secondary)]" />
+          </el-icon>
+        </button>
 
-      <el-sub-menu index="2">
-        <template #title>
-          <el-icon><Location /></el-icon>
-          <span>示例页面</span>
-        </template>
-        <el-menu-item index="/example/table" class="menu-item">
-          <el-icon><Grid /></el-icon>
-          <span>表格页面</span>
-        </el-menu-item>
-        <el-menu-item index="/example/form" class="menu-item">
-          <el-icon><EditPen /></el-icon>
-          <span>表单页面</span>
-        </el-menu-item>
-      </el-sub-menu>
-    </el-menu>
+        <!-- 子菜单 -->
+        <div
+          class="overflow-hidden transition-[max-height] duration-300"
+          :class="[!openSubmenus.includes('system') || isCollapse ? 'max-h-0' : 'max-h-[200px]']"
+        >
+          <router-link
+            to="/system/user"
+            class="flex items-center pl-12 pr-2 py-3 rounded-lg text-[var(--el-text-color-primary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
+            :class="[route.path === '/system/user' ? 'bg-[var(--el-color-primary-light-9)]' : '']"
+          >
+            <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--el-bg-color-overlay)]">
+              <User class="w-5 h-5" :class="route.path === '/system/user' ? 'text-[var(--el-color-primary)]' : 'text-[var(--el-text-color-secondary)]'" />
+            </div>
+            <span class="ml-3 text-sm font-medium">用户管理</span>
+          </router-link>
+
+          <router-link
+            to="/system/role"
+            class="flex items-center pl-12 pr-2 py-3 rounded-lg text-[var(--el-text-color-primary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
+            :class="[route.path === '/system/role' ? 'bg-[var(--el-color-primary-light-9)]' : '']"
+          >
+            <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--el-bg-color-overlay)]">
+              <Setting class="w-5 h-5" :class="route.path === '/system/role' ? 'text-[var(--el-color-primary)]' : 'text-[var(--el-text-color-secondary)]'" />
+            </div>
+            <span class="ml-3 text-sm font-medium">角色管理</span>
+          </router-link>
+        </div>
+      </div>
+    </div>
 
     <!-- 折叠按钮 -->
     <div
-      class="h-[60px] flex items-center justify-center cursor-pointer transition-colors duration-300"
+      class="h-16 flex items-center justify-center cursor-pointer text-[var(--el-text-color-secondary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
       @click="toggleCollapse"
     >
-      <el-icon
-        class="text-base transition-transform duration-300"
-        :class="{ 'rotate-180': !isCollapse }"
-      >
+      <el-icon class="text-lg transition-transform duration-300" :class="[!isCollapse ? 'rotate-180' : '']">
         <Fold v-if="isCollapse" />
         <Expand v-else />
       </el-icon>
@@ -97,24 +123,26 @@ import {
   EditPen,
   Fold,
   Expand,
+  ArrowDown,
 } from "@element-plus/icons-vue";
 
 const route = useRoute();
 const isCollapse = ref(false);
+const openSubmenus = ref<string[]>([]);
 
 const toggleCollapse = () => {
   isCollapse.value = !isCollapse.value;
+  if (isCollapse.value) {
+    openSubmenus.value = [];
+  }
 };
 
-const handleOpen = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath);
+const toggleSubmenu = (name: string) => {
+  const index = openSubmenus.value.indexOf(name);
+  if (index > -1) {
+    openSubmenus.value.splice(index, 1);
+  } else {
+    openSubmenus.value.push(name);
+  }
 };
-
-const handleClose = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath);
-};
-</script>
-
-<style lang="scss" scoped>
-
-</style> 
+</script> 

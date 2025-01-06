@@ -42,7 +42,7 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, _, next) => {
   const userStore = useUserStore();
-  const token = userStore.token;
+  const token = userStore.getAccessToken();
 
   if (to.path === "/login") {
     if (token) {

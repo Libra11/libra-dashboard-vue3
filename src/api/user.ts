@@ -5,6 +5,13 @@ import type { ResponseData } from "@/types/http";
 interface LoginParams {
   username: string;
   password: string;
+  captchaId: string;
+  captchaCode: string;
+}
+
+interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
 }
 
 interface UserInfo {
@@ -14,14 +21,31 @@ interface UserInfo {
   avatar: string;
 }
 
+interface CaptchaResponse {
+  id: string;
+  image: string;
+}
+
 // 用户相关接口
 export const userApi = {
+  // 获取验证码
+  getCaptcha: () => {
+    return http.get<ResponseData<CaptchaResponse>>("/auth/captcha");
+  },
+
   // 登录
   login: (data: LoginParams) => {
-    return http.post<ResponseData<string>>("/auth/login", data, {
+    return http.post<ResponseData<LoginResponse>>("/auth/login", data, {
       requestOptions: {
         successMessage: "登录成功",
       },
+    });
+  },
+
+  // 刷新token
+  refreshToken: (refresh_token: string) => {
+    return http.post<ResponseData<LoginResponse>>("/auth/refresh", {
+      refresh_token,
     });
   },
 

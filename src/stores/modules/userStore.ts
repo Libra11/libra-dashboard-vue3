@@ -8,25 +8,43 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { userApi } from "@/api/user";
 
+interface LoginForm {
+  username: string;
+  password: string;
+  captchaId: string;
+  captchaCode: string;
+}
+
 export const useUserStore = defineStore(
   "user",
   () => {
     // 状态
-    const token = ref<string>("");
+    const accessToken = ref<string>("");
+    const refreshToken = ref<string>("");
+    const isAuthenticated = ref(false);
 
     // 方法
-    const login = async () => {
+    const setTokens = (access: string, refresh: string) => {
+      accessToken.value = access;
+      refreshToken.value = refresh;
+      isAuthenticated.value = true;
+    };
+
+    const clearTokens = () => {
+      accessToken.value = "";
+      refreshToken.value = "";
+      isAuthenticated.value = false;
+    };
+
+    const login = async (loginForm: LoginForm) => {
       try {
-        const response = await userApi.login({
-          username: "admin",
-          password: "123456",
-        });
-        console.log("登录响应:", response);
-        // 从 response.data 中获取 token
-        token.value = response.data;
-        // 验证token是否被正确设置
-        console.log("设置后的token:", token.value);
-        return true;
+        const response = await userApi.login(loginForm);
+        if (response.code === 201) {
+          const { access_token, refresh_token } = response.data;
+          setTokens(access_token, refresh_token);
+          return true;
+        }
+        return false;
       } catch (error) {
         console.error("登录失败:", error);
         return false;
@@ -35,11 +53,7 @@ export const useUserStore = defineStore(
 
     const logout = async () => {
       try {
-        await userApi.logout();
-        // 清除状态
-        token.value = "";
-        // 验证token是否被正确清除
-        console.log("登出后的token:", token.value);
+        clearTokens();
         return true;
       } catch (error) {
         console.error("退出失败:", error);
@@ -47,17 +61,19 @@ export const useUserStore = defineStore(
       }
     };
 
-    const getToken = () => {
-      // 验证获取到的token
-      console.log("当前token:", token.value);
-      return token.value;
-    };
+    const getAccessToken = () => accessToken.value;
+    const getRefreshToken = () => refreshToken.value;
 
     return {
-      token,
+      accessToken,
+      refreshToken,
+      isAuthenticated,
       login,
       logout,
-      getToken,
+      getAccessToken,
+      getRefreshToken,
+      setTokens,
+      clearTokens,
     };
   },
   {

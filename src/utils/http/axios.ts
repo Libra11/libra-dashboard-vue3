@@ -10,6 +10,7 @@ import type { CreateRequestConfig, ResponseData } from "@/types/http";
 import { useUserStore } from "@/stores/modules/userStore";
 import { ElMessage, ElLoading } from "element-plus";
 import qs from "qs";
+import { userApi } from "@/api/user";
 
 // 加载实例
 let loadingInstance: any;
@@ -49,7 +50,7 @@ export class RequestHttp {
     this.instance.interceptors.request.use(
       (config) => {
         const userStore = useUserStore();
-        const token = userStore.getToken();
+        const token = userStore.getAccessToken();
 
         // 添加token
         if (token && config.headers) {
@@ -84,7 +85,7 @@ export class RequestHttp {
         loadingInstance?.close();
 
         const res = response.data as ResponseData;
-        if (res.code !== 0) {
+        if (res.code !== 200 && res.code !== 201) {
           if (showError) {
             ElMessage.error(res.message || "请求失败");
           }
@@ -97,7 +98,7 @@ export class RequestHttp {
 
         return Promise.resolve(res);
       },
-      (error: AxiosError<ResponseData>) => {
+      async (error: AxiosError<ResponseData>) => {
         loadingInstance?.close();
 
         const { requestOptions } = error.config as CreateRequestConfig;
@@ -106,12 +107,40 @@ export class RequestHttp {
         // 处理错误
         if (error.response) {
           switch (error.response.status) {
-            case 401:
-              // token过期处理
+            case 401: {
               const userStore = useUserStore();
+              const refreshToken = userStore.getRefreshToken();
+
+              // 如果有refresh token，尝试刷新
+              if (refreshToken) {
+                try {
+                  const res = await userApi.refreshToken(refreshToken);
+                  if (res.code === 200) {
+                    // 更新token
+                    userStore.setTokens(
+                      res.data.access_token,
+                      res.data.refresh_token
+                    );
+                    // 重试失败的请求
+                    const config = error.config;
+                    if (config?.headers) {
+                      config.headers.Authorization = `Bearer ${res.data.access_token}`;
+                    }
+                    return this.instance(config!);
+                  }
+                } catch (refreshError) {
+                  // 刷新token失败，退出登录
+                  userStore.logout();
+                  window.location.href = "/login";
+                  return Promise.reject(refreshError);
+                }
+              }
+
+              // 没有refresh token，直接退出
               userStore.logout();
               window.location.href = "/login";
               break;
+            }
             case 403:
               ElMessage.error("没有权限访问");
               break;

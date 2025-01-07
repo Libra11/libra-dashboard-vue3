@@ -119,7 +119,8 @@ export class RequestHttp {
                     // 更新token
                     userStore.setTokens(
                       res.data.access_token,
-                      res.data.refresh_token
+                      res.data.refresh_token,
+                      res.data.user
                     );
                     // 重试失败的请求
                     const config = error.config;

@@ -73,12 +73,14 @@ import { User, Lock, Key } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { userApi } from '@/api/user'
+import { useModeStore } from '@/stores/modules/modeStore'
 
 const router = useRouter()
 const userStore = useUserStore()
 const loading = ref(false)
 const formRef = ref<FormInstance>()
 const captchaImage = ref('')
+const modeStore = useModeStore()
 
 const loginForm = reactive({
   username: '',
@@ -102,7 +104,9 @@ const rules = reactive<FormRules>({
 
 const getCaptcha = async () => {
   try {
-    const response = await userApi.getCaptcha()
+    const mode = modeStore.isDark
+    console.log(mode)
+    const response = await userApi.getCaptcha(mode)
     if (response.code === 200) {
       const { data } = response
       captchaImage.value = data.image

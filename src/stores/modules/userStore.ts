@@ -7,6 +7,8 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { userApi } from "@/api/user";
+import type { User } from "@/api/system/user";
+import { roleApi, type Role } from "@/api/system/role";
 
 interface LoginForm {
   username: string;
@@ -22,17 +24,20 @@ export const useUserStore = defineStore(
     const accessToken = ref<string>("");
     const refreshToken = ref<string>("");
     const isAuthenticated = ref(false);
+    const userInfo = ref<User | null>(null);
 
     // 方法
-    const setTokens = (access: string, refresh: string) => {
+    const setTokens = (access: string, refresh: string, user: User) => {
       accessToken.value = access;
       refreshToken.value = refresh;
+      userInfo.value = user;
       isAuthenticated.value = true;
     };
 
     const clearTokens = () => {
       accessToken.value = "";
       refreshToken.value = "";
+      userInfo.value = null;
       isAuthenticated.value = false;
     };
 
@@ -40,8 +45,8 @@ export const useUserStore = defineStore(
       try {
         const response = await userApi.login(loginForm);
         if (response.code === 201) {
-          const { access_token, refresh_token } = response.data;
-          setTokens(access_token, refresh_token);
+          const { access_token, refresh_token, user } = response.data;
+          setTokens(access_token, refresh_token, user);
           return true;
         }
         return false;
@@ -68,6 +73,7 @@ export const useUserStore = defineStore(
       accessToken,
       refreshToken,
       isAuthenticated,
+      userInfo,
       login,
       logout,
       getAccessToken,

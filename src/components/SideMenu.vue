@@ -1,5 +1,7 @@
 <!--
  * @Author: Libra
+ * @Date: 2025-01-06 10:15:23
+ * @LastEditors: Libra
  * @Description: 侧边菜单组件
 -->
 <template>
@@ -20,87 +22,92 @@
 
     <!-- 菜单主体 -->
     <div class="px-2 py-4 space-y-1 overflow-y-auto">
-      <!-- 首页 -->
-      <router-link
-        to="/home"
-        class="flex items-center px-2 py-3 rounded-lg text-[var(--el-text-color-primary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
-        :class="[
-          isCollapse ? 'justify-center' : '',
-          route.path === '/home' ? 'bg-[var(--el-color-primary-light-9)]' : ''
-        ]"
-      >
-        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--el-bg-color-overlay)]">
-          <House class="w-5 h-5" :class="route.path === '/home' ? 'text-[var(--el-color-primary)]' : 'text-[var(--el-text-color-secondary)]'" />
-        </div>
-        <span
-          class="ml-3 text-sm font-medium transition-transform duration-300 origin-left"
-          :class="[isCollapse ? 'scale-x-0' : 'scale-x-100']"
-        >
-          首页
-        </span>
-      </router-link>
-
-      <!-- 系统管理 -->
-      <div class="space-y-1">
-        <button
-          @click="toggleSubmenu('system')"
-          class="w-full flex items-center px-2 py-3 rounded-lg text-[var(--el-text-color-primary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
-          :class="[isCollapse ? 'justify-center' : '']"
+      <template v-for="menu in sortedMenus" :key="menu.id">
+        <!-- 无子菜单 -->
+        <router-link
+          v-if="!menu.children?.length && menu.path"
+          :to="menu.path"
+          class="flex items-center px-2 py-3 rounded-lg text-[var(--el-text-color-primary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
+          :class="[
+            isCollapse ? 'justify-center' : '',
+            route.path === menu.path ? 'bg-[var(--el-color-primary-light-9)]' : ''
+          ]"
         >
           <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--el-bg-color-overlay)]">
-            <Document class="w-5 h-5 text-[var(--el-text-color-secondary)]" />
+            <component 
+              :is="getIconComponent(menu.icon)" 
+              class="w-5 h-5"
+              :class="route.path === menu.path ? 'text-[var(--el-color-primary)]' : 'text-[var(--el-text-color-secondary)]'"
+            />
           </div>
           <span
             class="ml-3 text-sm font-medium transition-transform duration-300 origin-left"
             :class="[isCollapse ? 'scale-x-0' : 'scale-x-100']"
           >
-            系统管理
+            {{ menu.name }}
           </span>
-          <el-icon
-            class="ml-auto transition-transform duration-300"
-            :class="[
-              isCollapse ? 'opacity-0 scale-0' : '',
-              openSubmenus.includes('system') ? 'rotate-180' : ''
-            ]"
-          >
-            <ArrowDown class="text-[var(--el-text-color-secondary)]" />
-          </el-icon>
-        </button>
+        </router-link>
 
-        <!-- 子菜单 -->
-        <div
-          class="overflow-hidden transition-[max-height] duration-300"
-          :class="[!openSubmenus.includes('system') || isCollapse ? 'max-h-0' : 'max-h-[200px]']"
-        >
-          <router-link
-            to="/system/user"
-            class="flex items-center pl-12 pr-2 py-3 rounded-lg text-[var(--el-text-color-primary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
-            :class="[route.path === '/system/user' ? 'bg-[var(--el-color-primary-light-9)]' : '']"
+        <!-- 有子菜单 -->
+        <div v-else class="space-y-1">
+          <button
+            @click="() => handleToggleSubmenu(menu.id)"
+            class="w-full flex items-center px-2 py-3 rounded-lg text-[var(--el-text-color-primary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
+            :class="[isCollapse ? 'justify-center' : '']"
           >
             <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--el-bg-color-overlay)]">
-              <User class="w-5 h-5" :class="route.path === '/system/user' ? 'text-[var(--el-color-primary)]' : 'text-[var(--el-text-color-secondary)]'" />
+              <component 
+                :is="getIconComponent(menu.icon)" 
+                class="w-5 h-5 text-[var(--el-text-color-secondary)]"
+              />
             </div>
-            <span class="ml-3 text-sm font-medium">用户管理</span>
-          </router-link>
+            <span
+              class="ml-3 text-sm font-medium transition-transform duration-300 origin-left"
+              :class="[isCollapse ? 'scale-x-0' : 'scale-x-100']"
+            >
+              {{ menu.name }}
+            </span>
+            <el-icon
+              class="ml-auto transition-transform duration-300"
+              :class="[
+                isCollapse ? 'opacity-0 scale-0' : '',
+                openSubmenuSet.has(menu.id) ? 'rotate-180' : ''
+              ]"
+            >
+              <ArrowDown class="text-[var(--el-text-color-secondary)]" />
+            </el-icon>
+          </button>
 
-          <router-link
-            to="/system/role"
-            class="flex items-center pl-12 pr-2 py-3 rounded-lg text-[var(--el-text-color-primary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
-            :class="[route.path === '/system/role' ? 'bg-[var(--el-color-primary-light-9)]' : '']"
+          <!-- 子菜单 -->
+          <div
+            class="overflow-hidden transition-[max-height] duration-300"
+            :class="[!openSubmenuSet.has(menu.id) || isCollapse ? 'max-h-0' : 'max-h-[300px]']"
           >
-            <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--el-bg-color-overlay)]">
-              <Setting class="w-5 h-5" :class="route.path === '/system/role' ? 'text-[var(--el-color-primary)]' : 'text-[var(--el-text-color-secondary)]'" />
-            </div>
-            <span class="ml-3 text-sm font-medium">角色管理</span>
-          </router-link>
+            <router-link
+              v-for="submenu in menu.children"
+              :key="submenu.id"
+              :to="submenu.path || ''"
+              class="flex items-center pl-12 pr-2 py-3 rounded-lg text-[var(--el-text-color-primary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
+              :class="[route.path === submenu.path ? 'bg-[var(--el-color-primary-light-9)]' : '']"
+            >
+              <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--el-bg-color-overlay)]">
+                <component 
+                  :is="getIconComponent(submenu.icon)" 
+                  class="w-5 h-5"
+                  :class="route.path === submenu.path ? 'text-[var(--el-color-primary)]' : 'text-[var(--el-text-color-secondary)]'"
+                />
+              </div>
+              <span class="ml-3 text-sm font-medium">{{ submenu.name }}</span>
+            </router-link>
+          </div>
         </div>
-      </div>
+      </template>
     </div>
 
     <!-- 折叠按钮 -->
     <div
       class="h-16 flex items-center justify-center cursor-pointer text-[var(--el-text-color-secondary)] transition-colors duration-200 hover:bg-[var(--el-fill-color-light)]"
-      @click="toggleCollapse"
+      @click="handleToggleCollapse"
     >
       <el-icon class="text-lg transition-transform duration-300" :class="[!isCollapse ? 'rotate-180' : '']">
         <Fold v-if="isCollapse" />
@@ -111,38 +118,69 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, shallowRef, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import {
-  House,
-  Document,
-  Setting,
-  Location,
-  User,
-  Grid,
-  EditPen,
-  Fold,
-  Expand,
-  ArrowDown,
-} from "@element-plus/icons-vue";
+import { ArrowDown, Fold, Expand } from "@element-plus/icons-vue";
+import * as ElementPlusIcons from '@element-plus/icons-vue'
+import { type MenuItem } from '@/api/menu'
+import { useUserStore } from "@/stores/modules/userStore";
+import { roleApi } from "@/api/system/role";
 
 const route = useRoute();
 const isCollapse = ref(false);
-const openSubmenus = ref<string[]>([]);
+const openSubmenuSet = ref(new Set<number>());
+const menus = shallowRef<MenuItem[]>([]);
 
-const toggleCollapse = () => {
+// 递归排序菜单
+const sortMenus = (menus: MenuItem[]): MenuItem[] => {
+  return menus.sort((a, b) => a.sort - b.sort).map(menu => {
+    if (menu.children?.length) {
+      menu.children = sortMenus(menu.children)
+    }
+    return menu
+  })
+}
+
+// 排序后的菜单
+const sortedMenus = computed(() => {
+  return sortMenus([...menus.value])
+})
+
+// 获取图标组件
+const getIconComponent = (name?: string) => {
+  if (!name) return ArrowDown;
+  return (ElementPlusIcons as Record<string, any>)[name] || ArrowDown;
+};
+
+// 折叠/展开菜单
+const handleToggleCollapse = () => {
   isCollapse.value = !isCollapse.value;
   if (isCollapse.value) {
-    openSubmenus.value = [];
+    openSubmenuSet.value.clear();
   }
 };
 
-const toggleSubmenu = (name: string) => {
-  const index = openSubmenus.value.indexOf(name);
-  if (index > -1) {
-    openSubmenus.value.splice(index, 1);
+// 折叠/展开子菜单
+const handleToggleSubmenu = (id: number) => {
+  const newSet = new Set(openSubmenuSet.value);
+  if (newSet.has(id)) {
+    newSet.delete(id);
   } else {
-    openSubmenus.value.push(name);
+    newSet.add(id);
   }
+  openSubmenuSet.value = newSet;
 };
+
+const fetchMenus = async () => {
+  const userStore = useUserStore();
+  const id = userStore.userInfo?.roles[0].id
+  const res = await roleApi.getRole(id!)
+  if (res.code === 200) {
+    menus.value = res.data.menus
+  }
+}
+
+onMounted(() => {
+  fetchMenus()
+})
 </script> 

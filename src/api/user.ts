@@ -1,5 +1,6 @@
 import { http } from "@/utils/http";
 import type { ResponseData } from "@/types/http";
+import type { User } from "./system/user";
 
 // 定义接口返回数据类型
 interface LoginParams {
@@ -12,6 +13,7 @@ interface LoginParams {
 interface LoginResponse {
   access_token: string;
   refresh_token: string;
+  user: User;
 }
 
 interface UserInfo {
@@ -29,8 +31,10 @@ interface CaptchaResponse {
 // 用户相关接口
 export const userApi = {
   // 获取验证码
-  getCaptcha: () => {
-    return http.get<ResponseData<CaptchaResponse>>("/auth/captcha");
+  getCaptcha: (mode: boolean) => {
+    return http.get<ResponseData<CaptchaResponse>>(
+      "/auth/captcha?isDark=" + mode
+    );
   },
 
   // 登录
